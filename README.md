@@ -99,7 +99,7 @@ The plugin needs some configuration in order to work correctly.
   :enabled: true
   ```
 
-- **WORKAROUND** The `rubygem-ffi` package from `puppetlabs-dependencies`
+- **WORKAROUND**: The `rubygem-ffi` package from `puppetlabs-dependencies`
   causes aggregation to fail. The same package in EPEL contains fix, however
   the one from puppetlabs has higher release so it gets installed.
 
