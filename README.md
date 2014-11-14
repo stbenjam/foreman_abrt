@@ -36,7 +36,9 @@ Both plugins are available as RPMs in [Foreman YUM repositories](http://yum.thef
 
 The plugins require both Foreman and smart-proxy to be version 1.7 or later.
 
-The plugins have been tested on Fedora 19, RHEL 6 and RHEL 7.
+The plugins have been tested on Fedora 19, RHEL 6 and RHEL 7. Versions of the
+plugins compatible with Katello are `foreman_abrt-0.0.4` and
+`smart_proxy_abrt-0.0.6`.
 
 To have hosts automatically send ureports to Foreman, you need to have ABRT
 2.1.11 or higher installed on them. RHEL 7 and Fedora 19 and higher satisfy
@@ -60,21 +62,50 @@ You need to install the `rubygem-smart_proxy_abrt` package.
 
 The plugin needs some configuration in order to work correctly.
 
-- Edit `/etc/foreman-proxy/settings.yml` to configure the main Foreman host,
-  which is normally not needed. Assuming Foreman runs on `f19-foreman.tld` the
+- (**WORKAROUND** - installer should do this for us, see
+  [upstream bug](http://projects.theforeman.org/issues/8373).)
+
+  Edit `/etc/foreman-proxy/settings.yml` to configure the main Foreman host,
+  which is normally not needed. Assuming Foreman runs on `foreman.tld` the
   file should contain following:
 
   ```
   # URL of your foreman instance
-  :foreman_url: https://f19-foreman.tld
+  :foreman_url: https://foreman.tld
   ```
   Please note that the `:foreman_url:` setting may be entirely missing in the
   file. In that case just add the line to the end of
   `/etc/foreman-proxy/settings.yml`.
 
+- **WORKAROUND** - see [upstream bug](http://projects.theforeman.org/issues/8372).
+
+  Configure the ssl keys used to send requests to foreman. Make sure
+  `/etc/foreman-proxy/settings.yml` contains:
+
+  ```
+  :foreman_ssl_cert: /etc/puppet/client_cert.pem
+  :foreman_ssl_key: /etc/puppet/client_key.pem
+  :foreman_ssl_ca: /etc/puppet/ssl_ca.pem
+  ```
+
+  You also need to change the permissions of the private key in order to use it:
+  ```
+  # chown puppet:foreman-proxy /etc/puppet/client_key.pem
+  # chmod 440 /etc/puppet/client_key.pem
+  ```
+
 - Ensure that `/etc/foreman-proxy/settings.d/abrt.yml` contains the following line:
   ```
   :enabled: true
+  ```
+
+- **WORKAROUND** The `rubygem-ffi` package from `puppetlabs-dependencies`
+  causes aggregation to fail. The same package in EPEL contains fix, however
+  the one from puppetlabs has higher release so it gets installed.
+
+  You need to downgrade it to the EPEL version;
+  ```
+  # yum downgrade rubygem-ffi-1.0.9-10.el6
   ```
 
 - Cron is used to transfer the captured bug reports to Foreman in batches.
@@ -99,20 +130,18 @@ crashes to Foreman.
 
   ```
   # URL of your foreman-proxy, with /abrt path.
-  URL = https://f19-smartproxy.tld:8443/abrt
+  URL = https://smartproxy.tld:9090/abrt
   # Verify the server certificate.
   SSLVerify = yes
-  # This asks puppet config for the path to the ceritificates. you can
-  # explicitly provide path by using /path/to/cert:/path/to/key on the
-  # right hand side.
-  SSLClientAuth = puppet
+  # Use the subscription management certificates to authenticate to the proxy.
+  SSLClientAuth = /etc/pki/consumer/cert.pem:/etc/pki/consumer/key.pem
   ```
 
-- Add the Puppet CA to the list of trusted certificate authorities. This is
+- Add the RHSM CA to the list of trusted certificate authorities. This is
   needed for verifying the validity of smart-proxy's certificate:
 
   ```
-  ~# cp /var/lib/puppet/ssl/certs/ca.pem /etc/pki/ca-trust/source/anchors/
+  ~# cp /etc/rhsm/ca/katello-server-ca.pem /etc/pki/ca-trust/source/anchors/
   ~# update-ca-trust
   ```
 
@@ -148,6 +177,16 @@ make sure not to actually report this to `sleep` maintainers, though:
 ~$ sleep 1d &
 ~$ kill -SEGV $!
 ```
+
+### Testing aggregation
+
+If you crash the same program twice (on one host) within the same period that
+smart-proxy waits between forwarding the reports to foreman, then only one
+report with count = 2 should appear in the web interface.
+
+However, be careful about ABRT's rate limiting - if you crash a program
+and then crash it again sooner that 20 seconds then the second crash is
+simply ignored.
 
 ## Usage
 
