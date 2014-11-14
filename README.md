@@ -100,8 +100,9 @@ The plugin needs some configuration in order to work correctly.
   ```
 
 - **WORKAROUND**: The `rubygem-ffi` package from `puppetlabs-dependencies`
-  causes aggregation to fail. The same package in EPEL contains fix, however
-  the one from puppetlabs has higher release so it gets installed.
+  repository (which Katello uses) causes aggregation to fail. The same package
+  in EPEL contains fix, however the one from puppetlabs has higher release so
+  it gets installed.
 
   You need to downgrade it to the EPEL version;
   ```
@@ -154,7 +155,7 @@ crashes to Foreman.
 ### Verifying that the setup works
 
 You can verify your setup by crashing something on your managed host. We have a
-set of utilities in the Fedora repository especially for this purpose:
+set of utilities in the Fedora/EPEL repository especially for this purpose:
 
 ```
 ~# yum -y install will-crash
