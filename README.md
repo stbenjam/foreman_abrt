@@ -119,6 +119,11 @@ The plugin needs some configuration in order to work correctly.
 This setup needs to be performed on every host that you wish to report its
 crashes to Foreman.
 
+The host needs to be registered (using subscription-manager) to your Katello
+instance. You can find the registration instructions on
+`https://foreman.tld/content_hosts/register` (where foreman.tld is the host
+where Foreman/Katello runs).
+
 - Make sure that ABRT is installed and running.
   ```
   ~# yum install abrt-cli
