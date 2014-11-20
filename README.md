@@ -54,6 +54,8 @@ instructions](http://projects.theforeman.org/projects/foreman/wiki/How_to_Instal
 You need to install the `rubygem-foreman_abrt` package (or
 `ruby193-rubygem-foreman_abrt` on RHEL/CentOS).
 
+After installing the plugin, restart Foreman with `service foreman restart`.
+
 ### Setting up smart proxies
 
 Follow the [smart-proxy plugin installation
@@ -107,6 +109,11 @@ The plugin needs some configuration in order to work correctly.
   You need to downgrade it to the EPEL version;
   ```
   # yum downgrade rubygem-ffi-1.0.9-10.el6
+  ```
+
+- After installing and configuring the plugin, smart-proxy has to be restarted.
+  ```
+  service foreman-proxy restart
   ```
 
 - Cron is used to transfer the captured bug reports to Foreman in batches.
