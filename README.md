@@ -101,16 +101,6 @@ The plugin needs some configuration in order to work correctly.
   :enabled: true
   ```
 
-- **WORKAROUND**: The `rubygem-ffi` package from `puppetlabs-dependencies`
-  repository (which Katello uses) causes aggregation to fail. The same package
-  in EPEL contains fix, however the one from puppetlabs has higher release so
-  it gets installed.
-
-  You need to downgrade it to the EPEL version;
-  ```
-  # yum downgrade rubygem-ffi-1.0.9-10.el6
-  ```
-
 - After installing and configuring the plugin, smart-proxy has to be restarted.
   ```
   service foreman-proxy restart
