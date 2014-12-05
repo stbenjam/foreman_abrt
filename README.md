@@ -121,6 +121,9 @@ instance. You can find the registration instructions on
 `https://foreman.tld/content_hosts/register` (where foreman.tld is the host
 where Foreman/Katello runs).
 
+The host also has to be managed by Puppet, i.e. host record must exist in
+Foreman web interface.
+
 - Make sure that ABRT is installed and running.
   ```
   ~# yum install abrt-cli
